@@ -6,6 +6,7 @@ from utils.common import DJANGO_CONF_PATH
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-ujv6*iavz)nu&g#x7-w64ia4p#oj2&z&eh13$7o^phk=7w@pa('
+ALLOWED_HOSTS = []
 
 # 为true时会加载dev配置，否则加载prod配置
 DEBUG = True
@@ -14,7 +15,6 @@ config_file = "dev.yaml" if DEBUG else "prod.yaml"
 with open(os.path.join(DJANGO_CONF_PATH, config_file), 'r', encoding='utf-8') as file:
     YAML_CONF: dict = yaml.safe_load(file)
 
-ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'django.contrib.admin',

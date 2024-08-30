@@ -1,3 +1,5 @@
+api_root_path: api/
+
 es:
   host: localhost
   port: 9200

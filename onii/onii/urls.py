@@ -16,7 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from .settings import YAML_CONF
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('apps.urls')),
+    path(YAML_CONF['api_root_path'], include('apps.urls')),
 ]
