@@ -1,0 +1,13 @@
+Django==3.2.25
+djangorestframework
+django-cors-headers==3.14.0
+kafka-python==2.0.2
+concurrent-log-handler==0.9.25
+elasticsearch==7.6.0
+requests==2.22.0
+psycopg2-binary==2.9.9
+django-q==1.3.9
+django-filter
+openpyxl==3.1.5
+pycryptodome==3.20.0
+pyyaml==6.0.2

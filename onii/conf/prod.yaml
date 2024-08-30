@@ -1,0 +1,11 @@
+es:
+  host: localhost
+  port: 9200
+
+log:
+  path: ./
+  default: app_all.log
+  error: app_error.log
+  level: INFO
+  maxBytes: 100000000  # 100mb
+  backupCount: 10

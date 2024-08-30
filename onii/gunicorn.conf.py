@@ -1,0 +1,1 @@
+# 工作进程数workers = 4# 指定每个工作者的线程数threads = 8# 监听内网端口8888，如果无代理的话可以改成0.0.0.0:8888bind = '0.0.0.0:80'timeout = 120# 设置访问日志和错误信息日志路径accesslog = '-'errorlog = '-'daemon = True
