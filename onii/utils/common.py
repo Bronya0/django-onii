@@ -5,7 +5,7 @@ from pathlib import Path
 
 # 本项目根路径：
 DJANGO_PATH = Path(__file__).resolve().parent.parent
-DJANGO_APPS_PATH = os.path.join(DJANGO_PATH, 'apps')
+DJANGO_APPS_PATH = os.path.join(DJANGO_PATH, 'app/api')
 DJANGO_CONF_PATH = os.path.join(DJANGO_PATH, 'conf')
 
 

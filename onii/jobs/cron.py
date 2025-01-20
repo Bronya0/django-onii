@@ -20,7 +20,7 @@ def job1():
     task_name = 'print_demo'
     Schedule.objects.filter(name=task_name).delete()
     schedule(
-        func='apps.async_task.tasks.demo.demo_task',
+        func='jobs.tasks.demo.demo_task',
         schedule_type=Schedule.MINUTES,
         minutes=1,
         name=task_name,

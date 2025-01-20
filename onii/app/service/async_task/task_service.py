@@ -7,7 +7,7 @@ import django.db.transaction
 from django_q.models import Task
 from django_q.tasks import async_task
 
-from apps.async_task.models.async_task_model import DjangoQProcess
+from app.model.async_task.async_task_model import DjangoQProcess
 
 
 class AsyncTaskService:

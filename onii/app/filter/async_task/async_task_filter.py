@@ -6,7 +6,7 @@ import datetime
 import django_filters
 from django_q.models import Task
 
-from apps.async_task.models.async_task_model import DjangoQProcess
+from app.model.async_task.async_task_model import DjangoQProcess
 
 
 class AsyncTaskFilter(django_filters.FilterSet):

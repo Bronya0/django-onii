@@ -3,9 +3,9 @@
 from rest_framework.decorators import action
 from rest_framework.viewsets import GenericViewSet
 
-from apps.async_task.filters.async_task_filter import AsyncTaskFilter
-from apps.async_task.models.async_task_model import DjangoQProcess
-from apps.async_task.services.task_service import AsyncTaskService
+from app.filter.async_task.async_task_filter import AsyncTaskFilter
+from app.model.async_task.async_task_model import DjangoQProcess
+from app.service.async_task.task_service import AsyncTaskService
 from utils.drf_util import SuccessResponse
 from utils.page_util import MyPageNumberPagination
 

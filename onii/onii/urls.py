@@ -20,5 +20,5 @@ from .settings import YAML_CONF
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(YAML_CONF['api_root_path'], include('apps.urls')),
+    path(YAML_CONF['api_root_path'], include('app.urls')),
 ]

@@ -5,7 +5,7 @@ es:
   port: 9200
 
 log:
-  path: ./
+  path: ./logs
   default: app_all.log
   error: app_error.log
   level: INFO

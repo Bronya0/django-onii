@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'django_q',
-    'apps',
+    'app',
 ]
 
 DATABASES = {

@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.urls import path
 from rest_framework import routers
 
-from apps.async_task.views.async_task_view import AsyncTaskView
+from app.api.v1.async_task.async_task_view import AsyncTaskView
 
 urlpatterns = [
     path('', lambda request: HttpResponse("欢迎访问")),
