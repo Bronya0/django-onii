@@ -41,6 +41,9 @@ STANDARD_LOG_FORMAT = (
 
 LOG_PATH = YAML_CONF['log']['path']
 LOG_LEVEL = YAML_CONF['log']['level']
+# 创建目录
+if not os.path.exists(LOG_PATH):
+    os.makedirs(LOG_PATH)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
