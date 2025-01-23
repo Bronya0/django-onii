@@ -13,12 +13,22 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
 from django.contrib import admin
 from django.urls import path, include
 
-from .settings import YAML_CONF
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path(YAML_CONF['api_root_path'], include('app.urls')),
+    path("api/", include('app.urls')),
 ]
+
+if settings.DEBUG:
+    print("=====当前debug模式=====")
+    # print("=====启用drf_yasg=====")
+    #
+    # urlpatterns.append(
+    #     path("__debug__/", include("debug_toolbar.urls")),
+    # )
+else:
+    print("=====当前生产模式=====")

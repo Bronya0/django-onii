@@ -1,4 +1,3 @@
-api_root_path: api/
 
 es:
   host: localhost

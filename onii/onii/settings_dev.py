@@ -9,8 +9,8 @@ SECRET_KEY = 'django-insecure-ujv6*iavz)nu&g#x7-w64ia4p#oj2&z&eh13$7o^phk=7w@pa(
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 # 为true时会加载dev配置，否则加载prod配置
-DEBUG = False
-with open(os.path.join(DJANGO_CONF_PATH, "prod.yaml"), 'r', encoding='utf-8') as file:
+DEBUG = True
+with open(os.path.join(DJANGO_CONF_PATH, "dev.yaml"), 'r', encoding='utf-8') as file:
     YAML_CONF: dict = yaml.safe_load(file)
 
 INSTALLED_APPS = [
@@ -80,17 +80,17 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ["default"],
+            'handlers': ["console"],
             'level': LOG_LEVEL,
             'propagate': True,
         },
         'app': {
-            'handlers': ['error', 'default'],
+            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': True,
         },
         'async_task': {
-            'handlers': ['error', 'default'],
+            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': True,
         }
@@ -114,7 +114,8 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
-    # 'middleware.time_middleware.TimeMiddleware',
+    'middleware.time_middleware.TimeMiddleware',
+
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

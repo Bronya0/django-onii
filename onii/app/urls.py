@@ -1,11 +1,13 @@
-from django.http import HttpResponse
+import datetime
+
+from django.http import HttpResponse, JsonResponse
 from django.urls import path
 from rest_framework import routers
 
 from app.api.v1.async_task.async_task_view import AsyncTaskView
 
 urlpatterns = [
-    path('', lambda request: HttpResponse("欢迎访问")),
+    path('', lambda request: JsonResponse({"now": datetime.datetime.now()})),
 
 ]
 # DRF路由
