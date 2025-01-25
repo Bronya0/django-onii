@@ -1,1 +1,1 @@
-# 工作进程数workers = 4# 指定每个工作者的线程数threads = 8# 监听内网端口8888，如果无代理的话可以改成0.0.0.0:8888bind = '0.0.0.0:80'timeout = 120# 设置访问日志和错误信息日志路径accesslog = '-'errorlog = '-'daemon = True
+import multiprocessing# 工作进程数, 通常设置为 2 * CPU 核心数 + 1，可以设置上限16workers = min(multiprocessing.cpu_count() * 2 + 1, 16)# 指定每个工作者的线程数threads = 8# 监听内网端口8888，如果无代理的话可以改成0.0.0.0:8888bind = '0.0.0.0:80'timeout = 120# 设置访问日志和错误信息日志路径accesslog = '-'errorlog = '-'daemon = True# 使用多线程worker_class = "gthread"
