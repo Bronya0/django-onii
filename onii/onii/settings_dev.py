@@ -61,7 +61,7 @@ LOGGING = {
         },
         'default': {
             'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'concurrent_log_handler.ConcurrentRotatingFileHandler',
             'filename': os.path.join(LOG_PATH, YAML_CONF['log']['default']),
             'maxBytes': YAML_CONF['log']['maxBytes'],
             'backupCount': YAML_CONF['log']['backupCount'],
@@ -70,7 +70,7 @@ LOGGING = {
         },
         'error': {
             'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
+            'class': 'concurrent_log_handler.ConcurrentRotatingFileHandler',
             'filename': os.path.join(LOG_PATH, YAML_CONF['log']['error']),
             'maxBytes': YAML_CONF['log']['maxBytes'],
             'backupCount': YAML_CONF['log']['backupCount'],

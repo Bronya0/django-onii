@@ -11,3 +11,4 @@ django-filter
 openpyxl==3.1.5
 pycryptodome==3.20.0
 pyyaml==6.0.2
+concurrent-log-handler==0.9.26
