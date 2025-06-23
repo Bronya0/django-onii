@@ -14,6 +14,7 @@ CREATE TABLE  IF NOT EXISTS "app"."django_q_task" (
   "name" varchar(100) COLLATE "pg_catalog"."default" NOT NULL,
   "func" varchar(256) COLLATE "pg_catalog"."default" NOT NULL,
   "hook" varchar(256) COLLATE "pg_catalog"."default",
+  "cluster" varchar(100),
   "args" text COLLATE "pg_catalog"."default",
   "kwargs" text COLLATE "pg_catalog"."default",
   "result" text COLLATE "pg_catalog"."default",
@@ -53,5 +54,6 @@ CREATE TABLE IF NOT EXISTS "app"."django_q_schedule" (
   "minutes" int2,
   "cron" varchar(100) COLLATE "pg_catalog"."default",
   "cluster" varchar(100) COLLATE "pg_catalog"."default",
+  "intended_date_kwarg" varchar(100) COLLATE "pg_catalog"."default",
   CONSTRAINT "django_q_schedule_minutes_check" CHECK ((minutes >= 0))
 );
