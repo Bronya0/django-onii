@@ -6,3 +6,5 @@
 @Project : django-onii
 @Desc    : 
 """
+
+from app.model.auth.auth_model import User, Role, AuditLog, LoginLog  # noqa: F401

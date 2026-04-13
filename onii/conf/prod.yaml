@@ -1,4 +1,17 @@
 
+# 数据库配置
+# engine: sqlite / mysql / pgsql
+database:
+  engine: sqlite
+  # SQLite 配置（engine=sqlite 时生效）
+  name: db.sqlite3
+  # MySQL / PostgreSQL 配置（engine=mysql 或 pgsql 时生效）
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: ''
+  db_name: onii
+
 es:
   host: localhost
   port: 9200
@@ -10,3 +23,11 @@ log:
   level: INFO
   maxBytes: 100000000  # 100mb
   backupCount: 10
+
+# 安全配置
+security:
+  ip_whitelist_enabled: false
+  ip_whitelist:
+    - 127.0.0.1
+    - 192.168.0.0/16
+    - 10.0.0.0/8
