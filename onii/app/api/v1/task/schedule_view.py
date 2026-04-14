@@ -1,30 +1,30 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from django_q.models import Schedule
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from rest_framework import serializers
 from rest_framework.viewsets import ModelViewSet
 
 from app.model.auth.drf_permissions import IsAuthenticated, HasPermission
-from utils.drf_util import SuccessResponse
+from app.model.system.system_model import CronSchedule
 from utils.page_util import MyPageNumberPagination
 
 
-class ScheduleSerializer(serializers.ModelSerializer):
+class CronScheduleSerializer(serializers.ModelSerializer):
     schedule_type_display = serializers.CharField(
         source='get_schedule_type_display', read_only=True
     )
 
     class Meta:
-        model = Schedule
+        model = CronSchedule
         fields = [
-            'id', 'name', 'func', 'hook', 'args', 'kwargs',
+            'id', 'name', 'func', 'args', 'kwargs',
             'schedule_type', 'schedule_type_display',
-            'minutes', 'cron',
-            'repeats', 'next_run', 'task',
+            'interval_seconds', 'cron_expression',
+            'enabled', 'description', 'last_run',
+            'created_at', 'updated_at',
         ]
-        read_only_fields = ['id', 'task', 'next_run']
+        read_only_fields = ['id', 'last_run', 'created_at', 'updated_at']
 
 
 @extend_schema_view(
@@ -35,10 +35,10 @@ class ScheduleSerializer(serializers.ModelSerializer):
     destroy=extend_schema(summary='删除定时任务', tags=['定时任务']),
 )
 class ScheduleManageView(ModelViewSet):
-    """定时任务管理 (Django-Q Schedule)"""
+    """定时任务管理 (APScheduler)"""
 
-    queryset = Schedule.objects.all().order_by('-id')
-    serializer_class = ScheduleSerializer
+    queryset = CronSchedule.objects.all().order_by('-id')
+    serializer_class = CronScheduleSerializer
     pagination_class = MyPageNumberPagination
     permission_classes = [IsAuthenticated, HasPermission]
 

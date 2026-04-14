@@ -1,42 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import django
-import os
-import sys
-from pathlib import Path
+"""
+在此注册代码写死的定时任务（不通过数据库管理）。
+scheduler.py 启动时会调用 register_code_jobs()。
+"""
 
-_APP_PATH = Path(__file__).resolve().parent.parent
-sys.path.append(str(_APP_PATH))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "onii.settings")
-django.setup()
-
-from django_q.models import Schedule
-from django_q.tasks import schedule
+from apscheduler.triggers.interval import IntervalTrigger
 
 
-def job1():
-    # 每次启动时要重新注册更合适
-    task_name = 'print_demo'
-    Schedule.objects.filter(name=task_name).delete()
-    schedule(
-        func='jobs.tasks.demo.demo_task',
-        schedule_type=Schedule.MINUTES,
-        minutes=1,
-        name=task_name,
+def register_code_jobs(scheduler):
+    """注册代码定义的定时任务"""
+
+    scheduler.add_job(
+        'jobs.tasks.demo:demo_task',
+        trigger=IntervalTrigger(minutes=1),
+        id='code_print_demo',
+        name='print_demo',
+        replace_existing=True,
     )
-    print("注册定时任务", task_name)
-
-
-def start_cron():
-    """
-    在此处注册多个定时任务
-    :return:
-    """
-    job1()
-
-    print("定时任务全部注册完成")
-
-
-if __name__ == '__main__':
-    start_cron()
+    print("代码定时任务注册完成")

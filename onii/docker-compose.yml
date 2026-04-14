@@ -25,7 +25,7 @@ services:
     build: .
     container_name: onii-worker
     restart: unless-stopped
-    command: python manage.py qcluster
+    command: python jobs/scheduler.py
     volumes:
       - ./conf:/home/onii/conf
       - ./logs:/home/onii/logs

@@ -3,9 +3,10 @@
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
+from unfold.admin import ModelAdmin as UnfoldModelAdmin
 
 from app.model.auth.auth_model import User, Role, AuditLog, LoginLog
-from app.model.system.system_model import SystemConfig, DictType, DictData
+from app.model.system.system_model import SystemConfig, DictType, DictData, CronSchedule
 
 
 # ──────────── 用户 & 角色 ────────────
@@ -25,7 +26,7 @@ class UserAdmin(BaseUserAdmin):
 
 
 @admin.register(Role)
-class RoleAdmin(admin.ModelAdmin):
+class RoleAdmin(UnfoldModelAdmin):
     list_display = ['id', 'code', 'name', 'is_builtin', 'created_at']
     list_filter = ['is_builtin']
     search_fields = ['code', 'name']
@@ -34,7 +35,7 @@ class RoleAdmin(admin.ModelAdmin):
 # ──────────── 审计日志（只读） ────────────
 
 @admin.register(AuditLog)
-class AuditLogAdmin(admin.ModelAdmin):
+class AuditLogAdmin(UnfoldModelAdmin):
     list_display = ['id', 'username', 'method', 'path', 'ip', 'status_code', 'duration_ms', 'created_at']
     list_filter = ['method', 'status_code']
     search_fields = ['username', 'path']
@@ -47,7 +48,7 @@ class AuditLogAdmin(admin.ModelAdmin):
 
 
 @admin.register(LoginLog)
-class LoginLogAdmin(admin.ModelAdmin):
+class LoginLogAdmin(UnfoldModelAdmin):
     list_display = ['id', 'username', 'ip', 'success', 'reason', 'created_at']
     list_filter = ['success']
     search_fields = ['username', 'ip']
@@ -62,7 +63,7 @@ class LoginLogAdmin(admin.ModelAdmin):
 # ──────────── 系统配置 ────────────
 
 @admin.register(SystemConfig)
-class SystemConfigAdmin(admin.ModelAdmin):
+class SystemConfigAdmin(UnfoldModelAdmin):
     list_display = ['key', 'value', 'value_type', 'group', 'is_public', 'updated_at']
     list_filter = ['group', 'value_type', 'is_public']
     search_fields = ['key', 'description']
@@ -77,7 +78,7 @@ class DictDataInline(admin.TabularInline):
 
 
 @admin.register(DictType)
-class DictTypeAdmin(admin.ModelAdmin):
+class DictTypeAdmin(UnfoldModelAdmin):
     list_display = ['code', 'name', 'description', 'is_active', 'updated_at']
     list_filter = ['is_active']
     search_fields = ['code', 'name']
@@ -85,8 +86,18 @@ class DictTypeAdmin(admin.ModelAdmin):
 
 
 @admin.register(DictData)
-class DictDataAdmin(admin.ModelAdmin):
+class DictDataAdmin(UnfoldModelAdmin):
     list_display = ['dict_type', 'label', 'value', 'sort', 'is_active']
     list_filter = ['dict_type', 'is_active']
     search_fields = ['label', 'value']
     list_editable = ['sort', 'is_active']
+
+
+# ──────────── 定时任务 ────────────
+
+@admin.register(CronSchedule)
+class CronScheduleAdmin(UnfoldModelAdmin):
+    list_display = ['name', 'func', 'schedule_type', 'enabled', 'last_run', 'updated_at']
+    list_filter = ['schedule_type', 'enabled']
+    search_fields = ['name', 'func']
+    list_editable = ['enabled']

@@ -5,7 +5,6 @@ from django.urls import path
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from app.api.v1.async_task.async_task_view import AsyncTaskView
 from app.api.v1.auth.auth_view import (
     AuthView, UserManageView, RoleManageView,
     AuditLogView, LoginLogView,
@@ -36,8 +35,6 @@ router.register("roles", RoleManageView, basename="roles")
 router.register("audit-logs", AuditLogView, basename="audit-logs")
 # 登录日志
 router.register("login-logs", LoginLogView, basename="login-logs")
-# 异步任务
-router.register("async_task", AsyncTaskView, basename="async_task")
 # 系统监控
 router.register("monitor", MonitorView, basename="monitor")
 # 系统配置

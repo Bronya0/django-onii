@@ -27,6 +27,7 @@ class Role(models.Model):
     class Meta:
         db_table = 'auth_role'
         verbose_name = '角色'
+        verbose_name_plural = verbose_name
 
     def __str__(self):
         return f"{self.name} ({self.code})"
@@ -47,6 +48,7 @@ class User(AbstractUser):
     class Meta:
         db_table = 'auth_user'
         verbose_name = '用户'
+        verbose_name_plural = verbose_name
 
     def has_role(self, role_code: str) -> bool:
         return self.roles.filter(code=role_code).exists()
@@ -75,6 +77,7 @@ class AuditLog(models.Model):
     class Meta:
         db_table = 'audit_log'
         verbose_name = '审计日志'
+        verbose_name_plural = verbose_name
         ordering = ['-created_at']
 
 
@@ -91,6 +94,7 @@ class LoginLog(models.Model):
     class Meta:
         db_table = 'login_log'
         verbose_name = '登录日志'
+        verbose_name_plural = verbose_name
         ordering = ['-created_at']
 
 
@@ -104,4 +108,5 @@ class PasswordHistory(models.Model):
     class Meta:
         db_table = 'auth_password_history'
         verbose_name = '密码历史'
+        verbose_name_plural = verbose_name
         ordering = ['-created_at']

@@ -1,6 +1,6 @@
 # Onii 后台管理系统
 
-基于 Django 5.2 LTS + DRF + Django-Q2 的通用后台管理系统。
+基于 Django 5.2 LTS + DRF + APScheduler 的通用后台管理系统。
 
 ## 技术栈
 
@@ -8,7 +8,7 @@
 |------|------|
 | Web 框架 | Django 5.2 LTS + Django REST Framework |
 | 认证 | JWT (simplejwt) |
-| 异步任务 | Django-Q2 (ORM Broker) |
+| 定时任务 | APScheduler (独立进程) |
 | 数据库 | SQLite / MySQL / PostgreSQL (YAML 配置切换) |
 | API 文档 | drf-spectacular (Swagger / ReDoc) |
 | 部署 | Docker / Docker Compose / 裸机 |
@@ -30,8 +30,8 @@ python manage_dev.py init_security
 # 启动开发服务
 python manage_dev.py runserver 8000
 
-# 启动任务队列 (另一个终端)
-python manage_dev.py qcluster
+# 启动定时任务调度器 (另一个终端，独立进程)
+DJANGO_SETTINGS_MODULE=onii.settings_dev python jobs/scheduler.py
 ```
 
 ### 2. Docker Compose 部署 (推荐)

@@ -14,6 +14,7 @@ with open(os.path.join(DJANGO_CONF_PATH, "prod.yaml"), 'r', encoding='utf-8') as
     YAML_CONF: dict = yaml.safe_load(file)
 
 INSTALLED_APPS = [
+    'unfold',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -25,7 +26,6 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
-    'django_q',
     'drf_spectacular',
     'app',
 ]
@@ -136,6 +136,7 @@ MIDDLEWARE = [
     'middleware.ip_whitelist_middleware.IPWhitelistMiddleware',
     'middleware.api_sign_middleware.ApiSignMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -146,41 +147,9 @@ MIDDLEWARE = [
     'middleware.audit_middleware.AuditMiddleware',
 ]
 
-# django-q配置
-Q_CLUSTER = {
-    # 任务队列命令
-    'name': 'app',
-    # worker数量，默认cpu数
-    'workers': 4,
-    # 在回收之前要处理的任务数量。对于定期释放内存资源很有用。默认为 500
-    'recycle': 500,
-    # 最大重试次数
-    'max_attempts': -1,
-    'ack_failures': True,
-    # 在任务终止之前允许worker在任务上花费的秒数。默认为 None ，这意味着它永远不会超时
-    'timeout': 604800,  # 一周
-    # 重启触发秒数，任务在达到秒数后会被其他worker再次启动。必须大于timeout
-    'retry': 604801,
-    # 将任务包压缩到代理。对于大型有效负载很有用，但与许多小包一起使用时会增加开销。默认为 False
-    'compress': False,
-    # 设置每个worker可以使用的处理器数量。这不会影响哨兵或监视器等辅助进程，并且仅适用于调整非常高流量的集群的性能。
-    # 关联数必须大于零且小于处理器总数才能产生任何效果.默认使用所有处理器;cpu_affinity 设置需要可选的 psutil 模块。
-    # 'cpu_affinity': 3,
-    # 限制保存到 Django 的成功任务数量。设置为 0 表示无限制。  设置为 -1 则根本不会成功存储。 默认为 250。失败总是可以被挽救的
-    'save_limit': 0,
-    # 排队的任务数量。将其设置为合理的数字可以帮助平衡每个集群的工作负载和内存开销。默认为 workers**2
-    'queue_limit': 500,
-    # 用于 Django 管理页面的标签。默认为 'Django Q'
-    'label': 'Django异步任务队列',
-    # 可以配置从redis读信息
-    # 'redis': {
-    #     'host': '',
-    #     'port': 6379,
-    #     'password': '',
-    #     'db': 1,
-    # }
-    'orm': 'default',
-    'has_replica': True
+UNFOLD = {
+    "SITE_TITLE": "Onii Admin",
+    "SITE_HEADER": "Onii 后台管理",
 }
 
 ROOT_URLCONF = 'onii.urls'
@@ -227,6 +196,7 @@ USE_I18N = True
 USE_TZ = False
 
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

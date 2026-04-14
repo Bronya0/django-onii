@@ -4,5 +4,4 @@
 """Django 模型聚合入口，确保 makemigrations 能发现模型。"""
 
 from app.model.auth.auth_model import User, Role, AuditLog, LoginLog, PasswordHistory  # noqa: F401
-from app.model.async_task.async_task_model import DjangoQProcess  # noqa: F401
-from app.model.system.system_model import SystemConfig, DictType, DictData  # noqa: F401
+from app.model.system.system_model import SystemConfig, DictType, DictData, CronSchedule  # noqa: F401
