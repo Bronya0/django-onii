@@ -14,7 +14,7 @@ with open(os.path.join(DJANGO_CONF_PATH, "dev.yaml"), 'r', encoding='utf-8') as 
     YAML_CONF: dict = yaml.safe_load(file)
 
 INSTALLED_APPS = [
-    'unfold',
+    'simpleui',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

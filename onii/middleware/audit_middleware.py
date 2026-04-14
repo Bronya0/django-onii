@@ -19,7 +19,13 @@ class AuditMiddleware:
     """审计日志中间件：记录所有写操作（POST/PUT/PATCH/DELETE）"""
 
     # 不记录审计日志的路径前缀
-    EXCLUDE_PATHS = ['/admin/jsi18n/', '/static/']
+    EXCLUDE_PATHS = [
+        '/static/',
+        '/admin/jsi18n/',
+        '/admin/autocomplete/',
+        '/admin/login/',
+        '/admin/logout/',
+    ]
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -29,8 +35,10 @@ class AuditMiddleware:
         response = self.get_response(request)
         duration_ms = int((time.time() - start_time) * 1000)
 
-        # 只记录 API 的写操作和登录操作
-        if request.method in ('POST', 'PUT', 'PATCH', 'DELETE') and request.path.startswith('/api/'):
+        # 记录 API 和 Admin 的写操作
+        is_write = request.method in ('POST', 'PUT', 'PATCH', 'DELETE')
+        is_target = request.path.startswith('/api/') or request.path.startswith('/admin/')
+        if is_write and is_target:
             if any(request.path.startswith(p) for p in self.EXCLUDE_PATHS):
                 return response
 

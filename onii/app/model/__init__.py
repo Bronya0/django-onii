@@ -8,4 +8,4 @@
 """
 
 from app.model.auth.auth_model import User, Role, AuditLog, LoginLog, PasswordHistory  # noqa: F401
-from app.model.system.system_model import SystemConfig, DictType, DictData  # noqa: F401
+from app.model.system.system_model import DictData, CronSchedule  # noqa: F401

@@ -14,7 +14,7 @@ with open(os.path.join(DJANGO_CONF_PATH, "prod.yaml"), 'r', encoding='utf-8') as
     YAML_CONF: dict = yaml.safe_load(file)
 
 INSTALLED_APPS = [
-    'unfold',
+    'simpleui',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -147,10 +147,9 @@ MIDDLEWARE = [
     'middleware.audit_middleware.AuditMiddleware',
 ]
 
-UNFOLD = {
-    "SITE_TITLE": "Onii Admin",
-    "SITE_HEADER": "Onii 后台管理",
-}
+SIMPLEUI_HOME_INFO = False
+SIMPLEUI_ANALYSIS = False
+SIMPLEUI_DEFAULT_THEME = 'admin.lte.css'
 
 ROOT_URLCONF = 'onii.urls'
 
