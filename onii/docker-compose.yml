@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: onii-web
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./conf:/home/onii/conf
+      - ./logs:/home/onii/logs
+      - db-data:/home/onii/db
+    environment:
+      - DJANGO_SETTINGS_MODULE=onii.settings
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  worker:
+    build: .
+    container_name: onii-worker
+    restart: unless-stopped
+    command: python manage.py qcluster
+    volumes:
+      - ./conf:/home/onii/conf
+      - ./logs:/home/onii/logs
+      - db-data:/home/onii/db
+    environment:
+      - DJANGO_SETTINGS_MODULE=onii.settings
+    depends_on:
+      - db
+
+  # ──── 数据库 (按需启用一个) ────
+
+  # SQLite 不需要 db 服务，注释掉 db 和 depends_on 即可
+  db:
+    image: postgres:16-alpine
+    container_name: onii-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: onii
+      POSTGRES_USER: onii
+      POSTGRES_PASSWORD: onii_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+  # MySQL 替代方案 (启用时注释 postgres):
+  # db:
+  #   image: mysql:8.0
+  #   container_name: onii-db
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_DATABASE: onii
+  #     MYSQL_ROOT_PASSWORD: onii_secret
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  db-data:
+  pg-data:
+  # mysql-data:

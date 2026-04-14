@@ -23,8 +23,10 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'corsheaders',
     'django_filters',
     'django_q',
+    'drf_spectacular',
     'app',
 ]
 
@@ -118,12 +120,24 @@ REST_FRAMEWORK = {
         'user': '120/minute',
     },
     'EXCEPTION_HANDLER': 'utils.exception.exception_handler',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Onii API',
+    'DESCRIPTION': '后台管理系统接口文档',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
 }
 
 MIDDLEWARE = [
     'middleware.ip_whitelist_middleware.IPWhitelistMiddleware',
+    'middleware.api_sign_middleware.ApiSignMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -210,8 +224,6 @@ TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
-USE_L10N = True
-
 USE_TZ = False
 
 STATIC_URL = '/static/'
@@ -230,3 +242,15 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
+
+# ──────────── CORS ────────────
+_cors_conf = YAML_CONF.get('cors', {})
+CORS_ALLOWED_ORIGINS = _cors_conf.get('allowed_origins', [])
+CORS_ALLOW_CREDENTIALS = _cors_conf.get('allow_credentials', True)
+CORS_ALLOW_ALL_ORIGINS = _cors_conf.get('allow_all', False)
+
+# ──────────── 安全加固 ────────────
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 请求体上限 10 MB
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'

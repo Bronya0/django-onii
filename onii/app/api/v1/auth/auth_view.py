@@ -5,12 +5,13 @@ import datetime
 import logging
 
 from django.utils import timezone
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from app.model.auth.auth_model import User, Role, AuditLog, LoginLog
+from app.model.auth.auth_model import User, Role, AuditLog, LoginLog, PasswordHistory
 from app.model.auth.drf_permissions import IsAuthenticated, HasPermission
 from app.model.auth.permissions import (
     PERM_USER_LIST, PERM_USER_CREATE, PERM_USER_UPDATE,
@@ -31,6 +32,16 @@ logger = logging.getLogger('app')
 # 登录失败锁定配置
 MAX_LOGIN_FAIL = 5
 LOCK_DURATION_MINUTES = 30
+# 密码历史记录数 (禁止复用最近 N 次密码)
+PASSWORD_HISTORY_COUNT = 5
+# 最大同时在线设备数 (0 = 不限制)
+MAX_SESSIONS = 3
+
+
+def _get_security_conf():
+    """从 YAML 配置读取安全参数"""
+    from django.conf import settings
+    return getattr(settings, 'YAML_CONF', {}).get('security', {})
 
 
 def get_client_ip(request):
@@ -40,6 +51,57 @@ def get_client_ip(request):
     return request.META.get('REMOTE_ADDR', '0.0.0.0')
 
 
+def _check_password_history(user, raw_password):
+    """检查密码是否在历史记录中"""
+    conf = _get_security_conf()
+    count = conf.get('password_history_count', PASSWORD_HISTORY_COUNT)
+    if count <= 0:
+        return False
+    history = user.password_history.all()[:count]
+    from django.contrib.auth.hashers import check_password
+    return any(check_password(raw_password, h.password_hash) for h in history)
+
+
+def _save_password_history(user):
+    """保存当前密码到历史"""
+    PasswordHistory.objects.create(user=user, password_hash=user.password)
+    # 只保留最近 N 条
+    conf = _get_security_conf()
+    keep = conf.get('password_history_count', PASSWORD_HISTORY_COUNT)
+    ids_to_keep = list(
+        user.password_history.order_by('-created_at').values_list('id', flat=True)[:keep]
+    )
+    user.password_history.exclude(id__in=ids_to_keep).delete()
+
+
+def _enforce_session_limit(user):
+    """会话并发控制：超出限制则踢掉最早的 token"""
+    conf = _get_security_conf()
+    max_sessions = conf.get('max_sessions', MAX_SESSIONS)
+    if max_sessions <= 0:
+        return
+    try:
+        from rest_framework_simplejwt.token_blacklist.models import (
+            OutstandingToken, BlacklistedToken,
+        )
+        active_tokens = (
+            OutstandingToken.objects.filter(user=user)
+            .exclude(id__in=BlacklistedToken.objects.values_list('token_id', flat=True))
+            .order_by('-created_at')
+        )
+        excess = list(active_tokens[max_sessions:])
+        for token in excess:
+            BlacklistedToken.objects.get_or_create(token=token)
+    except Exception as e:
+        logger.warning(f"会话并发控制异常: {e}")
+
+
+@extend_schema_view(
+    login=extend_schema(summary='用户登录', tags=['认证']),
+    info=extend_schema(summary='当前用户信息', tags=['认证']),
+    change_password=extend_schema(summary='修改密码', tags=['认证']),
+    logout=extend_schema(summary='登出', tags=['认证']),
+)
 class AuthView(GenericViewSet):
     """认证接口：登录、登出、修改密码、获取当前用户信息"""
 
@@ -91,9 +153,13 @@ class AuthView(GenericViewSet):
         refresh = RefreshToken.for_user(user)
         LoginLog.objects.create(username=username, ip=ip, user_agent=ua, success=True)
 
+        # 会话并发控制
+        _enforce_session_limit(user)
+
         return SuccessResponse(data={
             'access': str(refresh.access_token),
             'refresh': str(refresh),
+            'must_change_password': user.must_change_password,
             'user': {
                 'id': user.id,
                 'username': user.username,
@@ -124,9 +190,19 @@ class AuthView(GenericViewSet):
         if not user.check_password(serializer.validated_data['old_password']):
             return ErrorResponse(msg='原密码错误', code=4001)
 
-        user.set_password(serializer.validated_data['new_password'])
+        new_password = serializer.validated_data['new_password']
+
+        # 密码历史检查
+        if _check_password_history(user, new_password):
+            return ErrorResponse(msg='不能使用最近使用过的密码', code=4000)
+
+        # 保存旧密码到历史
+        _save_password_history(user)
+
+        user.set_password(new_password)
         user.password_changed_at = timezone.now()
-        user.save(update_fields=['password', 'password_changed_at'])
+        user.must_change_password = False
+        user.save(update_fields=['password', 'password_changed_at', 'must_change_password'])
         return SuccessResponse(msg='密码修改成功')
 
     @action(methods=['post'], detail=False, permission_classes=[IsAuthenticated])
@@ -141,6 +217,16 @@ class AuthView(GenericViewSet):
         return SuccessResponse(msg='已登出')
 
 
+@extend_schema_view(
+    list=extend_schema(summary='用户列表', tags=['用户管理']),
+    create=extend_schema(summary='创建用户', tags=['用户管理']),
+    retrieve=extend_schema(summary='用户详情', tags=['用户管理']),
+    update=extend_schema(summary='更新用户', tags=['用户管理']),
+    partial_update=extend_schema(summary='部分更新用户', tags=['用户管理']),
+    destroy=extend_schema(summary='禁用用户', tags=['用户管理']),
+    reset_password=extend_schema(summary='重置密码', tags=['用户管理']),
+    assign_roles=extend_schema(summary='分配角色', tags=['用户管理']),
+)
 class UserManageView(ModelViewSet):
     """用户管理（系统管理员）"""
 
@@ -193,11 +279,20 @@ class UserManageView(ModelViewSet):
         new_password = request.data.get('new_password', '')
         if len(new_password) < 8:
             return ErrorResponse(msg='密码长度不少于8位', code=4000)
+
+        # 密码历史检查
+        if _check_password_history(target_user, new_password):
+            return ErrorResponse(msg='不能使用该用户最近使用过的密码', code=4000)
+
+        # 保存旧密码到历史
+        _save_password_history(target_user)
+
         target_user.set_password(new_password)
         target_user.password_changed_at = timezone.now()
         target_user.login_fail_count = 0
         target_user.locked_until = None
-        target_user.save(update_fields=['password', 'password_changed_at', 'login_fail_count', 'locked_until'])
+        target_user.must_change_password = True  # 管理员重置后要求用户首次登录改密
+        target_user.save(update_fields=['password', 'password_changed_at', 'login_fail_count', 'locked_until', 'must_change_password'])
         return SuccessResponse(msg='密码已重置')
 
     @action(methods=['post'], detail=True, url_path='assign-roles')
@@ -217,6 +312,14 @@ class UserManageView(ModelViewSet):
         return SuccessResponse(msg='角色分配成功')
 
 
+@extend_schema_view(
+    list=extend_schema(summary='角色列表', tags=['角色管理']),
+    create=extend_schema(summary='创建角色', tags=['角色管理']),
+    retrieve=extend_schema(summary='角色详情', tags=['角色管理']),
+    update=extend_schema(summary='更新角色', tags=['角色管理']),
+    partial_update=extend_schema(summary='部分更新角色', tags=['角色管理']),
+    destroy=extend_schema(summary='删除角色', tags=['角色管理']),
+)
 class RoleManageView(ModelViewSet):
     """角色管理（安全管理员）"""
 
@@ -244,6 +347,14 @@ class RoleManageView(ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+@extend_schema_view(
+    list=extend_schema(summary='审计日志列表', tags=['审计日志'],
+        parameters=[
+            OpenApiParameter('start', str, description='开始时间'),
+            OpenApiParameter('end', str, description='结束时间'),
+            OpenApiParameter('username', str, description='用户名'),
+        ]),
+)
 class AuditLogView(GenericViewSet):
     """审计日志查看（审计管理员）"""
 
@@ -274,6 +385,13 @@ class AuditLogView(GenericViewSet):
         return SuccessResponse(data=serializer.data)
 
 
+@extend_schema_view(
+    list=extend_schema(summary='登录日志列表', tags=['审计日志'],
+        parameters=[
+            OpenApiParameter('username', str, description='用户名'),
+            OpenApiParameter('success', str, description='是否成功'),
+        ]),
+)
 class LoginLogView(GenericViewSet):
     """登录日志查看（审计管理员）"""
 

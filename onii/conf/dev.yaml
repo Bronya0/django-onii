@@ -31,3 +31,18 @@ security:
     - 127.0.0.1
     - 192.168.0.0/16
     - 10.0.0.0/8
+  # API 签名验证 (开发环境关闭)
+  api_sign_enabled: false
+  api_sign_secret: 'dev-hmac-secret-change-me'
+  # 密码历史记录数 (禁止复用最近 N 次)
+  password_history_count: 5
+  # 最大同时在线设备数 (0 = 不限制)
+  max_sessions: 5
+
+# CORS 跨域配置
+cors:
+  allow_all: true
+  allow_credentials: true
+  allowed_origins:
+    - http://localhost:3000
+    - http://localhost:8080

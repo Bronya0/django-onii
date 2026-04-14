@@ -42,6 +42,7 @@ class User(AbstractUser):
     locked_until = models.DateTimeField(null=True, blank=True, verbose_name="锁定截止时间")
     password_changed_at = models.DateTimeField(null=True, blank=True, verbose_name="密码最后修改时间")
     last_login_ip = models.GenericIPAddressField(null=True, blank=True, verbose_name="最后登录IP")
+    must_change_password = models.BooleanField(default=False, verbose_name="是否需要强制改密")
 
     class Meta:
         db_table = 'auth_user'
@@ -90,4 +91,17 @@ class LoginLog(models.Model):
     class Meta:
         db_table = 'login_log'
         verbose_name = '登录日志'
+        ordering = ['-created_at']
+
+
+class PasswordHistory(models.Model):
+    """密码历史：防止复用最近 N 次密码"""
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='password_history')
+    password_hash = models.CharField(max_length=256, verbose_name="密码哈希")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'auth_password_history'
+        verbose_name = '密码历史'
         ordering = ['-created_at']

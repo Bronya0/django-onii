@@ -1,0 +1,16 @@
+__pycache__
+*.pyc
+*.pyo
+.git
+.gitignore
+.env
+*.md
+docs/
+logs/
+db.sqlite3
+*.tar
+*.egg-info
+.vscode
+.idea
+node_modules
+.DS_Store

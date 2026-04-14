@@ -28,11 +28,22 @@ PERM_LOGIN_LOG_VIEW = 'audit:login_log:view'
 
 PERM_CONFIG_IP_WHITELIST = 'config:ip_whitelist'
 PERM_CONFIG_PASSWORD_POLICY = 'config:password_policy'
+PERM_CONFIG_VIEW = 'config:view'
+PERM_CONFIG_EDIT = 'config:edit'
+PERM_DICT_VIEW = 'dict:view'
+PERM_DICT_EDIT = 'dict:edit'
+PERM_MONITOR_VIEW = 'monitor:view'
+PERM_TASK_VIEW = 'task:view'
+PERM_TASK_EDIT = 'task:edit'
 
 # 内置角色的默认权限
 BUILTIN_ROLE_PERMISSIONS = {
     'system_admin': [
         PERM_USER_LIST, PERM_USER_CREATE, PERM_USER_UPDATE, PERM_USER_DELETE, PERM_USER_RESET_PWD,
+        PERM_CONFIG_VIEW, PERM_CONFIG_EDIT,
+        PERM_DICT_VIEW, PERM_DICT_EDIT,
+        PERM_MONITOR_VIEW,
+        PERM_TASK_VIEW, PERM_TASK_EDIT,
     ],
     'security_admin': [
         PERM_ROLE_LIST, PERM_ROLE_CREATE, PERM_ROLE_UPDATE, PERM_ROLE_DELETE, PERM_ROLE_ASSIGN,
@@ -42,6 +53,7 @@ BUILTIN_ROLE_PERMISSIONS = {
     'audit_admin': [
         PERM_AUDIT_LOG_VIEW, PERM_LOGIN_LOG_VIEW,
         PERM_USER_LIST,  # 审计管理员可查看用户列表（审计需要）
+        PERM_MONITOR_VIEW,
     ],
     'user': [],
 }
